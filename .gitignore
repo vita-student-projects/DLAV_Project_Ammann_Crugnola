@@ -1,0 +1,8 @@
+train
+val
+test_public
+train_preprocessed
+train_preprocessed/*
+val_preprocessed
+test_public_preprocessed
+*.zip
