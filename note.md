@@ -1,0 +1,4 @@
+- Try augmenting acceleration and not prepend 0
+- Try augmentation of images
+- Balance dataset
+- Think about where Model is good and where it is bad
