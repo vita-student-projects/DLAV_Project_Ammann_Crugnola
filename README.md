@@ -64,8 +64,8 @@ The image encoding part did not change from last time, we spent time trying to f
 We slightly enhanced our 2 layer LSTM with 64 hidden units to accept also an input for x, y acceleration and acceleration norm. This slightly improved the best reached validation ADE (around 0.05 lower).
 
 #### Fusion decoder:
-To fuse and decode the image and motion features into a predicted trajectory, we use a 2 Layer FCN with 128 hidden units, ReLU activation and dropout. The output is a 2D vector with the predicted x and y coordinated of the trajectory.
-TODO: multi trajectory prediction
+In this milestone, we haded a multimode trajectory prediction. We fuse and decode the image and motion feature into 3 different trajectories with a confidence score for each of them. The fusion is done by a 256 to 256 fully connected layer with ReLU activation and dropout and then 2 other 256 fully connected layer are in charge, one for the multimode trajectory prediction and one for the confidence score calculation. The output is 3 2D vectors with the x and y coordinate of each mode's trajectory, and a confidence score for each trajectory.
+
 
 ### Data inspection and Augmentation
 The main changes effected in this milestone fall into this category. First we implemented a clean image-flip that also flips the trajectories, depth and semantic data in the same go. Second we noticed that unpickling and augmenting data in the dataloader was the main bottleneck for training speed, hence we built a data preprocessing pipeline that takes all input data, does motion feature extraction, flipping, normalizing and conversion to tensors for all the training data points. It then stores a [safetensors](https://huggingface.co/docs/safetensors/index) file (new more efficient format used by hugging face so store and load tensor data) for both the flipped and the normal instance of the data. These files are then loaded in the dataloader and directly fed into the model. This virtually doubled our training data and resulted in an improvement in ADE of around 0.15.
@@ -78,7 +78,9 @@ The last big modification is the addition of a more balanced sampling. Two appro
 
 ### Training
 
-The training process did not change from the first milestone, we briefly explored slightly different hyperparameter combinations but with no success.
+The training process changed a bit now that we have mulitple modes. The loss is calculated with a soft max on the modes weighted with their confidence score. and for the validation we take the best confidence score trajectory.
+
+For the rest, we briefly explored slightly different hyperparameter combinations but with no success.
 
 ### Results and Analysis
 TODO: 
