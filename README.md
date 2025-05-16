@@ -46,3 +46,42 @@ A lot of different hyperparameters were tried, such as different learning rates,
 We analized the results of the model by inspecting the worst and best case results in terms of ADE. The model performs reasonably well in most cases, but it struggles with scenarios where the vehicle is turning or accelerating quickly. The model also struggles with scenarios where red lights are present or the vehicle is stopped or even stopps and accelerates again. This is natural since such a situation seems super hard to predict also for a human given that only one single image is given and not the whole video feed. 
 
 As post-processing we added smoothing to the predicted trajectory using a savitzky-golay filter. This helps to reduce noise in the predicted trajectory and makes it more realistic. The smoothing is done with a window size of 9 and a polynomial order of 3.
+
+## Milestone 2 hand-in:
+
+### How to run the code
+See first milestone, we continued to work in the same file
+
+### Model Architecture
+
+#### Image encoding:
+The image encoding part did not change from last time, we spent time trying to fuse the depth and semantic data into the model that we already have, the two main approaches we followed were:
+- **Early Fusion**: Try to fuse the depth data and semantic data directly into the image inputs as additional channels since they are very closely related to the image inputs. A lot of modifications of the resnet were necessary and we ran into problems using the pretrained weights fo the resnet for the rgb part and random weights for the additional channels. The best we got was with a ConvNeXt from timm that workt decently well but ended up taking tremenduous training times (around 5' per epoch) with ADE stagnating around 1.8-1.9. The whole training process got a lot less stable when adding in the additional data as well.
+
+- **Late Fusion**: Try to fuse the depth and semantic data in the final fusion decoder. We tried different models to separately and jointly encode depth and semantic data but none of the methods were able to significantly improve the validation ADE and they all took more time to train so the tradeoff seems rather bad. Models we tried are: simple custom made CNN for separate single-channel encoding, fused non pre-trained MobileNet V2 to jointly extract from [Depth, Semantic, Zero] channels.
+
+#### Motion encoding:
+We slightly enhanced our 2 layer LSTM with 64 hidden units to accept also an input for x, y acceleration and acceleration norm. This slightly improved the best reached validation ADE (around 0.05 lower).
+
+#### Fusion decoder:
+To fuse and decode the image and motion features into a predicted trajectory, we use a 2 Layer FCN with 128 hidden units, ReLU activation and dropout. The output is a 2D vector with the predicted x and y coordinated of the trajectory.
+TODO: multi trajectory prediction
+
+### Data inspection and Augmentation
+The main changes effected in this milestone fall into this category. First we implemented a clean image-flip that also flips the trajectories, depth and semantic data in the same go. Second we noticed that unpickling and augmenting data in the dataloader was the main bottleneck for training speed, hence we built a data preprocessing pipeline that takes all input data, does motion feature extraction, flipping, normalizing and conversion to tensors for all the training data points. It then stores a [safetensors](https://huggingface.co/docs/safetensors/index) file (new more efficient format used by hugging face so store and load tensor data) for both the flipped and the normal instance of the data. These files are then loaded in the dataloader and directly fed into the model. This virtually doubled our training data and resulted in an improvement in ADE of around 0.15.
+
+We also tried to use the same image augmentation techniques that we used in the last hand-in but they continuously yielded worse results, maybe this is related to the relatively strong normalization that we are using. Also the augmentation slowed down the training again since we could no longer normalize images in the preprocessing but had to do it afterwards in the dataloader.
+
+An other already mentionned change is the addition of augmented acceleration data to the motion features by differentiating the trajectory a second time, as mentionned this resulted in another small gain in ADE.
+
+The last big modification is the addition of a more balanced sampling. Two approaches were tested here and the simpler one proved to yield better results. As mentionned in the last milestones explainations, the data is rather unbalanced between curves and more or less straight lines so we tried to oversample curves a little bit because our model generalizes poorly for a lot of curve scenarios. This again improved ADE by around 0.08-0.1.
+
+### Training
+
+The training process did not change from the first milestone, we briefly explored slightly different hyperparameter combinations but with no success.
+
+### Results and Analysis
+TODO: 
+We analized the results of the model by inspecting the worst and best case results in terms of ADE. The model performs reasonably well in most cases, but it struggles with scenarios where the vehicle is turning or accelerating quickly. The model also struggles with scenarios where red lights are present or the vehicle is stopped or even stopps and accelerates again. This is natural since such a situation seems super hard to predict also for a human given that only one single image is given and not the whole video feed. 
+
+As post-processing we added smoothing to the predicted trajectory using a savitzky-golay filter. This helps to reduce noise in the predicted trajectory and makes it more realistic. The smoothing is done with a window size of 9 and a polynomial order of 3.
