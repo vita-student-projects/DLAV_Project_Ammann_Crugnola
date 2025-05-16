@@ -74,7 +74,7 @@ We also tried to use the same image augmentation techniques that we used in the 
 
 An other already mentionned change is the addition of augmented acceleration data to the motion features by differentiating the trajectory a second time, as mentionned this resulted in another small gain in ADE.
 
-The last big modification is the addition of a more balanced sampling. Two approaches were tested here and the simpler one proved to yield better results. As mentionned in the last milestones explainations, the data is rather unbalanced between curves and more or less straight lines so we tried to oversample curves a little bit because our model generalizes poorly for a lot of curve scenarios. This again improved ADE by around 0.08-0.1.
+The last big modification is the addition of a more balanced sampling. Two approaches were tested here and the simpler one proved to yield better results. As mentionned in the last milestones explainations, the data is rather unbalanced between curves and more or less straight lines so we tried to oversample curves a little bit because our model generalizes poorly for a lot of curve scenarios. This again improved ADE by around 0.08-0.1. (for the first approaches we divided into more classes, check [this file](./img/class_heatmap_five_mode.png) with the according [label distribution](./img/five_mode.png)).
 
 ### Training
 
@@ -83,7 +83,5 @@ The training process changed a bit now that we have mulitple modes. The loss is 
 For the rest, we briefly explored slightly different hyperparameter combinations but with no success.
 
 ### Results and Analysis
-TODO: 
-We analized the results of the model by inspecting the worst and best case results in terms of ADE. The model performs reasonably well in most cases, but it struggles with scenarios where the vehicle is turning or accelerating quickly. The model also struggles with scenarios where red lights are present or the vehicle is stopped or even stopps and accelerates again. This is natural since such a situation seems super hard to predict also for a human given that only one single image is given and not the whole video feed. 
 
-As post-processing we added smoothing to the predicted trajectory using a savitzky-golay filter. This helps to reduce noise in the predicted trajectory and makes it more realistic. The smoothing is done with a window size of 9 and a polynomial order of 3.
+The  model now manages turns a lot better and the cases with which it still struggles are mostly edge cases i.e. with a red light present that will turn green in the future or with a congested zone ahead that will eventually clear up. Those scenarios are vera hard to guess with the provided information - even for a human. We are a bit sad that we could not do more with the depth and semantic data and would have liked to explore more possibilities.
