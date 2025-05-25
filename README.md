@@ -85,3 +85,10 @@ For the rest, we briefly explored slightly different hyperparameter combinations
 ### Results and Analysis
 
 The  model now manages turns a lot better and the cases with which it still struggles are mostly edge cases i.e. with a red light present that will turn green in the future or with a congested zone ahead that will eventually clear up. Those scenarios are vera hard to guess with the provided information - even for a human. We are a bit sad that we could not do more with the depth and semantic data and would have liked to explore more possibilities.
+
+## Milestone 3 hand-in:
+
+For this milestone we took the model from milestone 2 and used it as-is with the new data. This worked very well, on the mixed data the model performs well and generalizes even better to the public test data. Therefore we decide not to change anything and leave the model like this. The only small change we added was balancing the data a little bit between real and synthetic samples rather than straight lines and curves.
+
+### Results and Analysis
+TODO:
