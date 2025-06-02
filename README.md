@@ -91,4 +91,4 @@ The  model now manages turns a lot better and the cases with which it still stru
 For this milestone we took the model from milestone 2 and used it as-is with the new data. This worked very well, on the mixed data the model performs well and generalizes even better to the public test data. Therefore we decide not to change anything and leave the model like this. The only small change we added was balancing the data a little bit between real and synthetic samples rather than straight lines and curves.
 
 ### Results and Analysis
-TODO:
+See poster
